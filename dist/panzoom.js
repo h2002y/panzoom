@@ -163,15 +163,15 @@ function createPanZoom(domElement, options) {
   return api;
 
   function pause() {
+    console.log("canvas is paused");
     releaseEvents();
     paused = true;
   }
 
   function resume() {
-    if (paused) {
-      listenForEvents();
-      paused = false;
-    }
+    console.log("canvas is resumed");
+    listenForEvents();
+    paused = false;
   }
 
   function isPaused() {
