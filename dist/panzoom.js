@@ -485,7 +485,7 @@ function createPanZoom(domElement, options) {
   }
 
   function listenForEvents() {
-    owner.addEventListener('mousedown', onMouseDown, { passive: false });
+    owner.addEventListener('contextmenu', onMouseDown, { passive: false });
     owner.addEventListener('dblclick', onDoubleClick, { passive: false });
     owner.addEventListener('touchstart', onTouch, { passive: false });
     owner.addEventListener('keydown', onKeyDown, { passive: false });
@@ -499,7 +499,7 @@ function createPanZoom(domElement, options) {
 
   function releaseEvents() {
     wheel.removeWheelListener(owner, onMouseWheel);
-    owner.removeEventListener('mousedown', onMouseDown);
+    owner.removeEventListener('contextmenu', onMouseDown);
     owner.removeEventListener('keydown', onKeyDown);
     owner.removeEventListener('dblclick', onDoubleClick);
     owner.removeEventListener('touchstart', onTouch);
@@ -772,6 +772,7 @@ function createPanZoom(domElement, options) {
   }
 
   function onMouseDown(e) {
+    e.preventDefault();
     clearPendingClickEventTimeout();
 
     // if client does not want to handle this event - just ignore the call
