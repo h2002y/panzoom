@@ -163,13 +163,11 @@ function createPanZoom(domElement, options) {
   return api;
 
   function pause() {
-    console.log("canvas is paused");
     releaseEvents();
     paused = true;
   }
 
   function resume() {
-    console.log("canvas is resumed");
     listenForEvents();
     paused = false;
   }
@@ -788,11 +786,12 @@ function createPanZoom(domElement, options) {
       e.stopPropagation();
       return false;
     }
-    // for IE, left click == 1
-    // for Firefox, left click == 0
-    var isLeftButton =
-      (e.button === 1 && window.event !== null) || e.button === 0;
-    if (!isLeftButton) return;
+    // 0: left click
+    // 1: wheel click
+    // 2: right click
+    var isRightButton =
+      (e.button === 1 && window.event !== null) || e.button === 2;
+    if (!isRightButton) return;
 
     smoothScroll.cancel();
 
