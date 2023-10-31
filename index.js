@@ -490,6 +490,7 @@ function createPanZoom(domElement, options) {
     owner.addEventListener('dblclick', onDoubleClick, { passive: false });
     owner.addEventListener('touchstart', onTouch, { passive: false });
     owner.addEventListener('keydown', onKeyDown, { passive: false });
+    owner.addEventListener('contextmenu', disableContextmenu, { passive: false});
 
     // Need to listen on the owner container, so that we are not limited
     // by the size of the scrollable domElement
@@ -504,6 +505,7 @@ function createPanZoom(domElement, options) {
     owner.removeEventListener('keydown', onKeyDown);
     owner.removeEventListener('dblclick', onDoubleClick);
     owner.removeEventListener('touchstart', onTouch);
+    owner.removeEventListener('contextmenu', disableContextmenu);
 
     if (frameAnimation) {
       window.cancelAnimationFrame(frameAnimation);
@@ -772,15 +774,21 @@ function createPanZoom(domElement, options) {
     smoothZoom(offset.x, offset.y, zoomDoubleClickSpeed);
   }
 
-  function onMouseDown(e) {
-    clearPendingClickEventTimeout();
+  function disableContextmenu(e) {
+    e.preventDefault();
+    return false;
+  };
 
+  function onMouseDown(e) {
+    e.preventDefault();
+    clearPendingClickEventTimeout();
+    
     // if client does not want to handle this event - just ignore the call
     if (beforeMouseDown(e)) return;
-
+    
     lastMouseDownedEvent = e;
     lastMouseDownTime = new Date();
-
+    
     if (touchInProgress) {
       // modern browsers will fire mousedown for touch events too
       // we do not want this: touch is handled separately.
@@ -789,9 +797,8 @@ function createPanZoom(domElement, options) {
     }
     // for IE, left click == 1
     // for Firefox, left click == 0
-    var isLeftButton =
-      (e.button === 1 && window.event !== null) || e.button === 0;
-    if (!isLeftButton) return;
+    var isRightButton = (e.button === 1 && window.event !== null) || e.button === 2;
+    if (!isRightButton) return;
 
     smoothScroll.cancel();
 
@@ -826,12 +833,15 @@ function createPanZoom(domElement, options) {
     internalMoveBy(dx, dy);
   }
 
-  function onMouseUp() {
-    var now = new Date();
-    if (now - lastMouseDownTime < clickEventTimeInMS) handlePotentialClickEvent(lastMouseDownedEvent);
-    textSelection.release();
-    triggerPanEnd();
-    releaseDocumentMouse();
+  function onMouseUp(e) {
+    e.preventDefault();
+    if (e.button === 2 || (e.button === 1 && window.event !== null)) {
+      var now = new Date();
+      if (now - lastMouseDownTime < clickEventTimeInMS) handlePotentialClickEvent(lastMouseDownedEvent);
+      textSelection.release();
+      triggerPanEnd();
+      releaseDocumentMouse();
+    }
   }
 
   function releaseDocumentMouse() {
